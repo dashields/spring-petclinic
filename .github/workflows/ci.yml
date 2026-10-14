@@ -36,7 +36,10 @@ jobs:
       - name: Compile Code and Run Tests
         run: ./mvnw clean test
 
-      - name: Build Docker Image
+      - name: Build Docker Image using buildpacks
+        run: ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=spring-petclinic:boot-base
+
+      - name: Build Docker Image from base image
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
           IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:${{ github.run_number }}"
