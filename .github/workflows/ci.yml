@@ -1,0 +1,56 @@
+name: Spring Petclinic CI with JFrog OIDC
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  ci-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ vars.JF_URL }}
+        with:
+          oidc-provider-name: github-provider # Replace with your JFrog OIDC Integration name
+
+      - name: Verify Artifactory Connection
+        run: jf rt ping
+
+      - name: Compile Code and Run Tests
+        run: ./mvnw clean test
+
+      - name: Build Docker Image
+        run: |
+          IMAGE_REGISTRY="${{ vars.JF_URL }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-local/spring-petclinic:${{ github.run_number }}"
+          jf docker build -t "$IMAGE_TAG" .
+
+      - name: Push Docker Image and Publish Build Info
+        run: |
+          IMAGE_REGISTRY="${{ vars.JF_URL }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-local/spring-petclinic:${{ github.run_number }}"
+          
+          # Push image to Artifactory docker-local repository with build info tracking
+          jf docker push "$IMAGE_TAG" --build-name=spring-petclinic --build-number=${{ github.run_number }}
+          
+          # Collect environment data & Git metadata, then publish build info
+          jf rt bce
+          jf rt bag
+          jf rt bp
