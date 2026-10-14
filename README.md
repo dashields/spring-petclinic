@@ -74,7 +74,7 @@ docker run --rm -p 8080:8080 --name petclinic-test spring-petclinic:local
 
 JFrog executes a similar build sequence in the GitHub Actions ci.yml pipeline.  To enable this pipeline, you need a JFrog Cloud Platform account.  Then go to the web console for your github petclinic repo, and add a repository variable for your JFrog company domain (Settings, then Secrets and variables --> Actions on left, Variables tab, New repository variable, Name: JF_URL, value: &lt;company&gt;.jfrog.io)
 
-Finally, you need to enable OIDC integration on JFrog for seamless authentication.  Login to the JFrog web console, select Administration, General Management, Manage Integrations, OpenID Connect.  Select New Integration --> OpenID Connect, and provide the following values:
+Next, you need to enable OIDC integration on JFrog for seamless authentication.  Login to the JFrog web console, select Administration, General Management, Manage Integrations, OpenID Connect.  Select New Integration --> OpenID Connect, and provide the following values:
 
 - Provider Name: github-provider
 - Provider Type: GitHub
@@ -93,7 +93,14 @@ Click Next and add an identity mapping with the following:
     }
     ```
 
-and then Save twice.  When you push new commits, this should launch the ci.yml workflow, which can be monitored and troubleshooted under the Actions tab in the repo web console.    
+and then Save twice.  
+
+Finally, you need to create two local Docker repositories (use default settings):
+
+- docker-staging-local
+- docker-prod-local
+
+When you push new commits, this should launch the ci.yml workflow, which will do a build and push to staging, followed by an Xray scan and push to production.  The workflow can be monitored and troubleshooted under the Actions tab in the repo web console.    
 
 ## In case you find a bug/suggested improvement for Spring Petclinic
 

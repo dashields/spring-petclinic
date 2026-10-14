@@ -56,7 +56,7 @@ jobs:
           # Collect environment data & Git metadata, then publish build info
           jf rt bce
           jf rt bag
-          jf rt bp
+          jf rt bp --build-name=spring-petclinic --build-number="4.0.0-${{ github.run_number }}-${{ github.sha }}"
 
       - name: Xray Local Docker Scan
         run: |
