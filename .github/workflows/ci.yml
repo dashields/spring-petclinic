@@ -40,15 +40,15 @@ jobs:
       - name: Build Docker Image
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-local/spring-petclinic:${{ github.run_number }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:${{ github.run_number }}"
           jf docker build -t "$IMAGE_TAG" .
 
       - name: Push Docker Image and Publish Build Info
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-local/spring-petclinic:${{ github.run_number }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:${{ github.run_number }}"
           
-          # Push image to Artifactory docker-local repository with build info tracking
+          # Push image to Artifactory docker-trial repository with build info tracking
           jf docker push "$IMAGE_TAG" --build-name=spring-petclinic --build-number=${{ github.run_number }}
           
           # Collect environment data & Git metadata, then publish build info
