@@ -42,7 +42,7 @@ See below for more details.
 
 ## Building a Container
 
-There is no `Dockerfile` in this project. You can build a container image (if you have a docker daemon) using the Spring Boot build plugin:
+There is dummy minimal `Dockerfile` in this project for integration with JFrog (see below). For use without docker build, you can build a container image (if you have a docker daemon) using the Spring Boot build plugin:
 
 ```bash
 ./mvnw spring-boot:build-image
@@ -54,6 +54,46 @@ There is no `Dockerfile` in this project. You can build a container image (if yo
 docker images | grep petclinic
 docker run -p 8080:8080 docker.io/library/spring-petclinic:latest
 ```
+
+## JFrog Integration
+
+JFrog integration requires running a separate build process for artifact upload and tagging.  The spring-boot maven plugin is still used to leverage buildbacks, and then a dummy Dockerfile is used for the docker or jfrog build.
+
+First, run the maven build-image command as before, but tagging the image with a specific release:
+
+```bash
+./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=spring-petclinic:boot-base
+```
+
+The minimal Dockerfile references the boot-base release, so you can build and run as follows:
+
+```bash
+docker build -t spring-petclinic:local .
+docker run --rm -p 8080:8080 --name petclinic-test spring-petclinic:local
+```
+
+JFrog executes a similar build sequence in the GitHub Actions ci.yml pipeline.  To enable this pipeline, you need a JFrog Cloud Platform account.  Then go to the web console for your github petclinic repo, and add a repository variable for your JFrog company domain (Settings, then Secrets and variables --> Actions on left, Variables tab, New repository variable, Name: JF_URL, value: &lt;company&gt;.jfrog.io)
+
+Finally, you need to enable OIDC integration on JFrog for seamless authentication.  Login to the JFrog web console, select Administration, General Management, Manage Integrations, OpenID Connect.  Select New Integration --> OpenID Connect, and provide the following values:
+
+- Provider Name: github-provider
+- Provider Type: GitHub
+- Provider URL: https://token.actions.githubusercontent.com
+- Organization: &lt;github organization or username&gt;
+
+Click Next and add an identity mapping with the following:
+
+- Name: github-actions-test-deploy
+- Priority: 1
+- Claims JSON:
+    ```bash
+    {
+      "iss": "https://token.actions.githubusercontent.com",
+      "repository": "<org/username>/spring-petclinic"
+    }
+    ```
+
+and then Save twice.  When you push new commits, this should launch the ci.yml workflow, which can be monitored and troubleshooted under the Actions tab in the repo web console.    
 
 ## In case you find a bug/suggested improvement for Spring Petclinic
 
