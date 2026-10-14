@@ -26,10 +26,9 @@ jobs:
       - name: Set up JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ vars.JF_URL }}
+          JF_URL: https://${{ vars.JF_URL }}
         with:
           oidc-provider-name: github-provider # Replace with your JFrog OIDC Integration name
-#          oidc-audience: jfrog-github
 
       - name: Verify Artifactory Connection
         run: jf rt ping
