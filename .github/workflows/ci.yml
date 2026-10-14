@@ -45,7 +45,7 @@ jobs:
           IMAGE_TAG="$IMAGE_REGISTRY/docker-staging-local/spring-petclinic:4.0.0-${{ github.run_number }}-${{ github.sha }}"
           jf docker build -t "$IMAGE_TAG" .
 
-      - name: Push Docker Staging Image 
+      - name: Push Docker Staging Image and Publish Build Info
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
           IMAGE_TAG="$IMAGE_REGISTRY/docker-staging-local/spring-petclinic:4.0.0-${{ github.run_number }}-${{ github.sha }}"
@@ -53,21 +53,21 @@ jobs:
           # Push image to Artifactory docker-staging-local repository with build info tracking
           jf docker push "$IMAGE_TAG" --build-name=spring-petclinic --build-number="4.0.0-${{ github.run_number }}-${{ github.sha }}"
           
+          # Collect environment data & Git metadata, then publish build info
+          jf rt bce
+          jf rt bag
+          jf rt bp
+
       - name: Xray Local Docker Scan
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
           IMAGE_TAG="$IMAGE_REGISTRY/docker-staging-local/spring-petclinic:4.0.0-${{ github.run_number }}-${{ github.sha }}"
           jf docker scan "$IMAGE_TAG" --fail=true 
 
-      - name: Push Docker Image and Publish Build Info
+      - name: Promote to production
         run: |
-          IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-prod-local/spring-petclinic:4.0.0-${{ github.run_number }}-${{ github.sha }}"
+          BUILD_NUM="4.0.0-${{ github.run_number }}-${{ github.sha }}"
           
-          # Push image to Artifactory docker-prod-local repository with build info tracking
-          jf docker push "$IMAGE_TAG" --build-name=spring-petclinic --build-number="4.0.0-${{ github.run_number }}-${{ github.sha }}"
+          # Promote to production
+          jf rt bpr spring-petclinic "$BUILD_NUM" docker-prod-local --status="Released" --comment="Passed security scan, promoting to production" --copy=true
           
-          # Collect environment data & Git metadata, then publish build info
-          jf rt bce
-          jf rt bag
-          jf rt bp
