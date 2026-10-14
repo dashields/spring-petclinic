@@ -42,22 +42,22 @@ jobs:
       - name: Build Docker Image from base image
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:${{ github.run_number }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:1.0.0-${{ github.run_number }}-${{ github.sha }}"
           jf docker build -t "$IMAGE_TAG" .
 
       - name: Xray Local Docker Scan
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:${{ github.run_number }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:1.0.0-${{ github.run_number }}-${{ github.sha }}"
           jf docker scan "$IMAGE_TAG" --fail=true 
 
       - name: Push Docker Image and Publish Build Info
         run: |
           IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:${{ github.run_number }}"
+          IMAGE_TAG="$IMAGE_REGISTRY/docker-trial/spring-petclinic:1.0.0-${{ github.run_number }}-${{ github.sha }}"
           
           # Push image to Artifactory docker-trial repository with build info tracking
-          jf docker push "$IMAGE_TAG" --build-name=spring-petclinic --build-number=${{ github.run_number }}
+          jf docker push "$IMAGE_TAG" --build-name=spring-petclinic --build-number=1.0.0-${{ github.run_number }}-${{ github.sha }}"
           
           # Collect environment data & Git metadata, then publish build info
           jf rt bce
