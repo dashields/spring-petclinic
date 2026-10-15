@@ -60,9 +60,8 @@ jobs:
 
       - name: Xray Local Docker Scan
         run: |
-          IMAGE_REGISTRY="${{ vars.JF_URL }}"
-          IMAGE_TAG="$IMAGE_REGISTRY/docker-staging-local/spring-petclinic:4.0.0-${{ github.run_number }}-${{ github.sha }}"
-          jf docker scan "$IMAGE_TAG" --fail=true 
+          BUILD_NUM="4.0.0-${{ github.run_number }}-${{ github.sha }}"
+          jf rt bs spring-petclinic "$BUILD_NUM" --fail=true
 
       - name: Promote to production
         run: |
