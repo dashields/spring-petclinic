@@ -100,7 +100,9 @@ Finally, you need to create two local Docker repositories (use default settings)
 - docker-staging-local
 - docker-prod-local
 
-When you push new commits, this should launch the ci.yml workflow, which will do a build and push to staging, followed by an remote Xray scan and if succesful push to production.  The workflow can be monitored and troubleshooted under the Actions tab in the repo web console.    
+When you push new commits, this should launch the ci.yml workflow, which will do a build and push to staging, followed by an remote Xray scan and if succesful push to production.  The workflow can be monitored and troubleshooted under the Actions tab in the repo web console.
+
+_Note: Depending on how you have your JFrog watch policy configured, you may need to modify Xray settings to include spring-petclinic as a build index resource (Xray Settings --> Indexed Resources, Builds)_
 
 ## In case you find a bug/suggested improvement for Spring Petclinic
 
